@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Préstamos y Anticipos{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">
+      {% if es_gestion_fin %}Panel de Aprobación de Anticipos y Préstamos (Finanzas){% else %}Mis Solicitudes de Anticipos y Préstamos{% endif %}
+    </h1>
+    <p class="text-xs text-slate-400">
+      {% if es_gestion_fin %}Revisión de cupos y autorización de desembolsos sobre nómina.{% else %}Solicita adelantos de salario o préstamos institucionales.{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'anticipo_solicitar' %}" class="rounded-xl bg-yellow-500 hover:bg-yellow-400 px-4 py-2.5 text-xs font-bold text-slate-900 shadow-lg transition flex items-center gap-2">
+    <span>＋</span> Solicitar Anticipo
+  </a>
+</div>
+
+<div class="glass rounded-3xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] text-left">
+        <tr>
+          {% if es_gestion_fin %}<th class="p-4">Colaborador</th>{% endif %}
+          <th class="p-4">Tipo</th>
+          <th>Monto Solicitado</th>
+          <th>Cuotas</th>
+          <th>Justificación</th>
+          <th>Estado</th>
+          <th>Resolución</th>
+          {% if es_gestion_fin %}<th class="pr-4 text-right">Acción Finanzas</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for a in solicitudes %}
+        <tr class="hover:bg-slate-800/40 transition">
+          {% if es_gestion_fin %}
+          <td class="p-4">
+            <p class="font-semibold text-white">{{ a.empleado.nombre_completo }}</p>
+            <p class="text-[11px] text-slate-400">Salario base: {{ a.empleado.salario_base|moneda }}</p>
+          </td>
+          {% endif %}
+          <td class="p-4">
+            <span class="px-2 py-1 rounded text-[10px] font-semibold bg-yellow-500/20 text-yellow-300">{{ a.tipo_texto }}</span>
+          </td>
+          <td class="font-bold text-emerald-400 text-sm">{{ a.monto|moneda }}</td>
+          <td class="font-medium text-white">{{ a.cuotas }} cuota(s)</td>
+          <td class="max-w-[220px] truncate text-slate-300">{{ a.justificacion }}</td>
+          <td>
+            {% if a.estado == 'APROBADA' %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✔ Aprobada</span>
+            {% elif a.estado == 'RECHAZADA' %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">✖ Rechazada</span>
+            {% else %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⏳ Pendiente</span>
+            {% endif %}
+          </td>
+          <td class="text-[11px] text-slate-400">
+            {% if a.fecha_resolucion %}
+            <span>Por: {{ a.revisado_por.nombre_completo }}</span><br>
+            <span class="italic text-slate-500">{{ a.comentario_revision|default:"Sin observaciones" }}</span>
+            {% else %}
+            <span class="text-slate-600">En evaluación</span>
+            {% endif %}
+          </td>
+          {% if es_gestion_fin %}
+          <td class="pr-4 text-right">
+            {% if a.estado == 'PENDIENTE' %}
+            <div class="flex items-center justify-end gap-2">
+              <form method="post" action="{% url 'anticipo_resolver' a.pk 'aprobar' %}" class="inline">
+                {% csrf_token %}
+                <button class="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-900 text-xs font-semibold transition">
+                  Aprobar
+                </button>
+              </form>
+              <form method="post" action="{% url 'anticipo_resolver' a.pk 'rechazar' %}" class="inline">
+                {% csrf_token %}
+                <button class="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-semibold transition">
+                  Rechazar
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <span class="text-slate-600 text-xs">Procesada</span>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="p-8 text-center text-slate-500">No hay solicitudes de anticipo registradas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

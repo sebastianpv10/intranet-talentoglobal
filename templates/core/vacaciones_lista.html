@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Vacaciones y Permisos{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">
+      {% if es_gestion %}Panel de Aprobación de Vacaciones (RH){% else %}Mis Solicitudes de Vacaciones y Permisos{% endif %}
+    </h1>
+    <p class="text-xs text-slate-400">
+      {% if es_gestion %}Gestión de solicitudes radicadas por el personal de TalentoGlobal SAS.{% else %}Consulta el estado de tus solicitudes de descanso y licencias.{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'vacaciones_solicitar' %}" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition flex items-center gap-2">
+    <span>＋</span> Radicar Nueva Solicitud
+  </a>
+</div>
+
+<div class="glass rounded-3xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] text-left">
+        <tr>
+          {% if es_gestion %}<th class="p-4">Colaborador</th>{% endif %}
+          <th class="p-4">Tipo</th>
+          <th>Periodo Solicitado</th>
+          <th>Días</th>
+          <th>Motivo</th>
+          <th>Estado</th>
+          <th>Resolución</th>
+          {% if es_gestion %}<th class="pr-4 text-right">Acción RH</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for s in solicitudes %}
+        <tr class="hover:bg-slate-800/40 transition">
+          {% if es_gestion %}
+          <td class="p-4">
+            <p class="font-semibold text-white">{{ s.empleado.nombre_completo }}</p>
+            <p class="text-[11px] text-slate-400">{{ s.empleado.departamento.nombre }}</p>
+          </td>
+          {% endif %}
+          <td class="p-4">
+            <span class="px-2 py-1 rounded-md text-[10px] font-semibold bg-indigo-500/20 text-indigo-300">
+              {{ s.tipo_texto }}
+            </span>
+          </td>
+          <td>{{ s.fecha_inicio|date:"d/m/Y" }} → {{ s.fecha_fin|date:"d/m/Y" }}</td>
+          <td class="font-bold text-white">{{ s.dias }}</td>
+          <td class="max-w-[200px] truncate text-slate-300">{{ s.motivo|default:"—" }}</td>
+          <td>
+            {% if s.estado == 'APROBADA' %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✔ Aprobada</span>
+            {% elif s.estado == 'RECHAZADA' %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">✖ Rechazada</span>
+            {% else %}
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">⏳ Pendiente</span>
+            {% endif %}
+          </td>
+          <td class="text-[11px] text-slate-400">
+            {% if s.fecha_resolucion %}
+            <span>Por: {{ s.revisado_por.nombre_completo }}</span><br>
+            <span class="italic text-slate-500">{{ s.comentario_revision|default:"Sin comentarios" }}</span>
+            {% else %}
+            <span class="text-slate-600">En revisión</span>
+            {% endif %}
+          </td>
+          {% if es_gestion %}
+          <td class="pr-4 text-right">
+            {% if s.estado == 'PENDIENTE' %}
+            <div class="flex items-center justify-end gap-2">
+              <form method="post" action="{% url 'vacaciones_resolver' s.pk 'aprobar' %}" class="inline">
+                {% csrf_token %}
+                <button class="px-3 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-900 text-xs font-semibold transition">
+                  Aprobar
+                </button>
+              </form>
+              <form method="post" action="{% url 'vacaciones_resolver' s.pk 'rechazar' %}" class="inline">
+                {% csrf_token %}
+                <button class="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-semibold transition">
+                  Rechazar
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <span class="text-slate-600 text-xs">Resuelta</span>
+            {% endif %}
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="p-8 text-center text-slate-500">No hay solicitudes registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

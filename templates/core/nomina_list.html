@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Nómina{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="font-display text-2xl font-bold text-white">Nómina</h1>
+  <div class="flex gap-2">
+    <a href="{% url 'exportar_excel' %}" class="rounded-xl glass hover:bg-slate-700/60 px-4 py-2.5 text-sm font-semibold">⬇ Exportar Excel (.xlsx)</a>
+    <a href="{% url 'nomina_crear' %}" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2.5 text-sm font-semibold text-slate-900">＋ Generar colilla</a>
+  </div>
+</div>
+<form method="get" class="glass rounded-2xl p-4 flex gap-3 mb-5 text-sm items-center">
+  <label class="text-slate-400">Periodo</label>
+  <input type="month" name="periodo" value="{{ periodo }}" class="rounded-xl bg-slate-900/70 border border-slate-700 px-3 py-2">
+  <button class="rounded-xl bg-indigo-500 px-4 py-2 font-semibold text-white">Filtrar</button>
+  <a href="{% url 'nomina_list' %}" class="text-slate-400 hover:underline">Limpiar</a>
+</form>
+<div class="grid gap-4 sm:grid-cols-3 mb-5">
+  <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Total devengado</p><p class="font-display text-2xl text-white">{{ totales.dev|default:0|moneda }}</p></div>
+  <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Total deducciones</p><p class="font-display text-2xl text-rose-300">{{ totales.ded|default:0|moneda }}</p></div>
+  <div class="glass rounded-2xl p-4"><p class="text-xs text-slate-400">Neto a pagar</p><p class="font-display text-2xl text-emerald-400">{{ totales.neto|default:0|moneda }}</p></div>
+</div>
+<div class="glass rounded-2xl overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-800/50 text-slate-400 text-left"><tr><th class="p-4">Periodo</th><th>Empleado</th><th>Devengado</th><th>Salud</th><th>Pensión</th><th>Neto</th><th></th></tr></thead>
+    <tbody class="divide-y divide-slate-700/50">
+      {% for x in extractos %}
+      <tr class="hover:bg-slate-700/20">
+        <td class="p-4">{{ x.periodo|date:"M Y" }}</td><td class="font-medium text-white">{{ x.empleado.nombre_completo }}</td>
+        <td>{{ x.total_devengado|moneda }}</td><td>{{ x.deduccion_salud|moneda }}</td><td>{{ x.deduccion_pension|moneda }}</td>
+        <td class="text-emerald-400 font-semibold">{{ x.neto_pagar|moneda }}</td>
+        <td class="text-right pr-4 whitespace-nowrap"><a class="text-indigo-300 hover:underline" href="{% url 'nomina_detalle' x.pk %}">Ver</a>
+          <form method="post" action="{% url 'nomina_eliminar' x.pk %}" class="inline" onsubmit="return confirm('¿Eliminar colilla?')">{% csrf_token %} · <button class="text-rose-300 hover:underline">Eliminar</button></form></td>
+      </tr>
+      {% empty %}<tr><td colspan="7" class="p-8 text-center text-slate-500">No hay colillas.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if is_paginated %}
+<div class="flex justify-center gap-3 mt-5 text-sm">
+  {% if page_obj.has_previous %}<a class="glass rounded-lg px-3 py-1.5" href="?periodo={{ periodo }}&page={{ page_obj.previous_page_number }}">← Anterior</a>{% endif %}
+  <span class="py-1.5 text-slate-400">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="glass rounded-lg px-3 py-1.5" href="?periodo={{ periodo }}&page={{ page_obj.next_page_number }}">Siguiente →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

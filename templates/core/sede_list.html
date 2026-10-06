@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sedes{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="font-display text-2xl font-bold text-white">Sedes</h1>
+  <a href="{% url 'sede_create' %}" class="rounded-xl bg-indigo-500 hover:bg-indigo-400 px-4 py-2.5 text-sm font-semibold text-white">＋ Nueva sede</a>
+</div>
+<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+  {% for s in sedes %}
+  <div class="glass rounded-2xl p-5 shadow-xl hover:-translate-y-1 transition">
+    <div class="flex justify-between"><h2 class="font-display font-semibold text-white">{{ s.nombre }}</h2>
+      <span class="text-xs rounded-full px-2 py-0.5 h-fit {% if s.activa %}bg-emerald-500/20 text-emerald-300{% else %}bg-slate-600/40 text-slate-300{% endif %}">{% if s.activa %}Activa{% else %}Inactiva{% endif %}</span></div>
+    <p class="text-sm text-slate-400 mt-1">📍 {{ s.ciudad }} · {{ s.direccion }}</p>
+    <p class="text-sm text-slate-400">📞 {{ s.telefono|default:"—" }}</p>
+    <p class="text-sm mt-3 text-indigo-300">{{ s.n }} colaborador(es)</p>
+    <div class="flex gap-4 mt-4 text-sm"><a class="text-indigo-300 hover:underline" href="{% url 'sede_update' s.pk %}">Editar</a><a class="text-rose-300 hover:underline" href="{% url 'sede_delete' s.pk %}">Eliminar</a></div>
+  </div>
+  {% empty %}<p class="text-slate-500">No hay sedes registradas.</p>{% endfor %}
+</div>
+{% endblock %}

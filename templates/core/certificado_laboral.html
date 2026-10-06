@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Certificado laboral{% endblock %}
+{% block head %}
+<style>
+  @media print {
+    body { background: #fff !important; }
+    .no-print { display: none !important; }
+    .hoja { box-shadow: none !important; margin: 0 !important; border: none !important; }
+    @page { size: letter; margin: 18mm; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="no-print flex flex-wrap items-center justify-between gap-3 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">Certificado laboral</h1>
+    <p class="text-sm text-slate-400">Generado automáticamente con sus datos contractuales vigentes.</p>
+  </div>
+  <button onclick="window.print()" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-lg shadow-emerald-500/30">🖨 Imprimir / Descargar PDF</button>
+</div>
+
+<article class="hoja mx-auto max-w-3xl bg-white text-slate-800 rounded-2xl shadow-2xl shadow-black/50 p-10 sm:p-14 relative overflow-hidden">
+  <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-indigo-500 to-emerald-500"></div>
+  <header class="flex items-center justify-between border-b border-slate-200 pb-6">
+    <div class="flex items-center gap-4">
+      {% include "core/_logo.html" with size=64 %}
+      <div>
+        <h2 class="font-display text-2xl font-extrabold text-slate-900">{{ EMPRESA.nombre }}</h2>
+        <p class="text-sm text-indigo-600 italic">{{ EMPRESA.eslogan }}</p>
+      </div>
+    </div>
+    <div class="text-right text-xs text-slate-500 leading-relaxed">
+      NIT {{ EMPRESA.nit }}<br>{{ EMPRESA.direccion }}<br>{{ EMPRESA.telefono }}
+    </div>
+  </header>
+
+  <h3 class="text-center font-display text-xl font-bold tracking-wide mt-10 mb-8 text-slate-900">EL ÁREA DE GESTIÓN HUMANA<br>CERTIFICA QUE</h3>
+
+  <p class="leading-8 text-justify text-[15px]">
+    El(la) señor(a) <strong class="uppercase">{{ empleado.nombre_completo }}</strong>, identificado(a) con documento de
+    identidad No. <strong>{{ empleado.documento }}</strong>, se encuentra vinculado(a) a <strong>{{ EMPRESA.nombre }}</strong>
+    mediante contrato a <strong>{{ empleado.get_tipo_contrato_display|lower }}</strong>, desde el
+    <strong>{{ empleado.fecha_ingreso|date:"j \d\e F \d\e Y" }}</strong>, desempeñando el cargo de
+    <strong>{{ empleado.cargo }}</strong> en el departamento de <strong>{{ empleado.departamento.nombre }}</strong>,
+    sede <strong>{{ empleado.sede.nombre }}</strong> ({{ empleado.sede.ciudad }}).
+  </p>
+  <p class="leading-8 text-justify text-[15px] mt-4">
+    Su asignación salarial básica mensual estipulada en el contrato es de
+    <strong>{{ empleado.salario_base|moneda }} pesos m/cte.</strong>
+    {% if not empleado.activo %}<br><em class="text-rose-600">Nota: la vinculación del colaborador se encuentra inactiva.</em>{% endif %}
+  </p>
+  <p class="leading-8 text-justify text-[15px] mt-4">
+    La presente certificación se expide a solicitud del interesado, en Bogotá D.C., el {{ hoy|date:"j \d\e F \d\e Y" }}.
+  </p>
+
+  <div class="mt-20 grid grid-cols-2 gap-10 items-end">
+    <div class="text-center">
+      <div class="h-20 flex items-end justify-center">
+        {% if empleado.firma_x %}<img src="{{ empleado.firma_x }}" alt="Firma X" class="max-h-20">{% endif %}
+      </div>
+      <div class="border-t border-slate-400 pt-2 text-sm">
+        <p class="font-semibold">{{ empleado.nombre_completo }}</p>
+        <p class="text-xs text-slate-500">C.C. {{ empleado.documento }} · Firma X</p>
+      </div>
+    </div>
+    <div class="text-center">
+      <div class="h-20"></div>
+      <div class="border-t border-slate-400 pt-2 text-sm">
+        <p class="font-semibold">Gestión Humana</p>
+        <p class="text-xs text-slate-500">{{ EMPRESA.nombre }}</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-14 pt-4 border-t border-slate-200 text-center text-xs text-slate-500">
+    {{ EMPRESA.email }} · {{ EMPRESA.telefono }} · Documento generado electrónicamente por la intranet de {{ EMPRESA.nombre }}
+  </footer>
+</article>
+{% endblock %}

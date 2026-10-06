@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Noticias y Comunicados{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">Noticias & Comunicados Corporativos</h1>
+    <p class="text-xs text-slate-400">Canal oficial de información interna de TalentoGlobal SAS.</p>
+  </div>
+  {% if es_lider %}
+  <a href="{% url 'noticia_crear' %}" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2.5 text-xs font-bold text-slate-900 shadow-lg transition flex items-center gap-2">
+    <span>＋</span> Publicar Noticia
+  </a>
+  {% endif %}
+</div>
+
+<div class="space-y-4">
+  {% for noti in noticias %}
+  <article class="glass rounded-3xl p-6 sm:p-7 hover:border-indigo-500/40 transition">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full {% if noti.categoria == 'COMUNICADO' %}bg-indigo-500/20 text-indigo-300{% elif noti.categoria == 'AVISO' %}bg-amber-500/20 text-amber-300{% else %}bg-emerald-500/20 text-emerald-300{% endif %}">
+          {{ noti.get_categoria_display }}
+        </span>
+        {% if noti.destacada %}<span class="text-[10px] font-bold text-amber-400">★ Destacada</span>{% endif %}
+      </div>
+      <span class="text-xs text-slate-500">{{ noti.creada|date:"d \d\e F \d\e Y" }}</span>
+    </div>
+    <h2 class="font-display font-bold text-lg text-white hover:text-indigo-400 transition">
+      <a href="{% url 'noticia_detalle' noti.pk %}">{{ noti.titulo }}</a>
+    </h2>
+    <p class="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">{{ noti.contenido }}</p>
+    <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-xs">
+      <span class="text-slate-400">Por: <strong class="text-slate-300">{{ noti.autor.nombre_completo|default:"Comité Ejecutivo" }}</strong></span>
+      <a href="{% url 'noticia_detalle' noti.pk %}" class="text-indigo-400 font-semibold hover:underline">Leer completa →</a>
+    </div>
+  </article>
+  {% empty %}
+  <p class="text-center py-10 text-slate-500">No hay noticias publicadas.</p>
+  {% endfor %}
+</div>
+{% endblock %}

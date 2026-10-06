@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Ingresar{% endblock %}
+{% block body %}
+<div class="min-h-screen flex items-center justify-center p-6">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="inline-block">{% include "core/_logo.html" with size=84 %}</div>
+      <h1 class="font-display text-3xl font-extrabold text-white mt-4">{{ EMPRESA.nombre }}</h1>
+      <p class="text-emerald-400 mt-1">{{ EMPRESA.eslogan }}</p>
+    </div>
+    <form method="post" class="glass rounded-3xl p-8 shadow-2xl shadow-indigo-950/60 space-y-5">
+      {% csrf_token %}
+      <h2 class="font-display text-lg font-semibold text-white">Ingreso a la intranet</h2>
+      {% if form.errors %}<p class="rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-sm px-4 py-2">Usuario o contraseña incorrectos.</p>{% endif %}
+      <div>
+        <label class="text-sm text-slate-400">Usuario</label>
+        <input name="username" autofocus required class="mt-1 w-full rounded-xl bg-slate-900/70 border border-slate-700 px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+      <div>
+        <label class="text-sm text-slate-400">Contraseña</label>
+        <input type="password" name="password" required class="mt-1 w-full rounded-xl bg-slate-900/70 border border-slate-700 px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-500 py-3 font-semibold text-white shadow-lg shadow-indigo-500/30 hover:opacity-90 transition">Ingresar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

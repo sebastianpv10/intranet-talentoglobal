@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Panel Principal{% endblock %}
+{% block content %}
+<!-- Cabecera de Bienvenida y Perfil -->
+<div class="glass rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden glow-indigo">
+  <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+    {% include "core/_logo.html" with size=260 %}
+  </div>
+  <div class="flex flex-wrap items-center justify-between gap-6 relative z-10">
+    <div class="flex items-center gap-5">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-emerald-400 p-0.5 shadow-xl">
+        <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center">
+          <span class="font-display font-extrabold text-2xl sm:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-300">
+            {{ request.user.first_name|first|default:"T" }}{{ request.user.last_name|first|default:"G" }}
+          </span>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            {{ empleado.get_rol_display|default:"Superadministrador" }}
+          </span>
+          <span class="text-xs text-slate-400 font-mono">{{ empleado.documento|default:"CC 1000000001" }}</span>
+        </div>
+        <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-white mt-1">
+          ¡Hola, {{ request.user.get_full_name|default:request.user.username }}! 👋
+        </h1>
+        <p class="text-sm text-slate-300 mt-1">
+          <span class="text-indigo-400 font-medium">{{ empleado.cargo|default:"Dirección General" }}</span> ·
+          <span>{{ empleado.departamento.nombre|default:"Comité Ejecutivo" }}</span> ·
+          <span class="text-emerald-400">📍 {{ empleado.sede.nombre|default:"Sede Principal Bogotá" }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Botones de Acción Rápida -->
+    <div class="flex flex-wrap gap-2.5 print:hidden">
+      <a href="{% url 'vacaciones_solicitar' %}" class="rounded-xl glass hover:bg-slate-800 px-4 py-2.5 text-xs font-semibold text-white transition flex items-center gap-2">
+        <span>🏖️</span> Pedir Vacaciones
+      </a>
+      <a href="{% url 'ticket_crear' %}" class="rounded-xl glass hover:bg-slate-800 px-4 py-2.5 text-xs font-semibold text-white transition flex items-center gap-2">
+        <span>🎫</span> Ticket IT
+      </a>
+      <a href="{% url 'anticipo_solicitar' %}" class="rounded-xl glass hover:bg-slate-800 px-4 py-2.5 text-xs font-semibold text-white transition flex items-center gap-2">
+        <span>💳</span> Anticipo
+      </a>
+      <a href="{% url 'certificado' %}" class="rounded-xl bg-gradient-to-r from-indigo-500 to-emerald-500 hover:opacity-90 px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition flex items-center gap-2">
+        <span>📄</span> Certificado Laboral
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- SECCIÓN DE CURSOS PENDIENTES & FEED DE NOTICIAS CORPORATIVAS           -->
+<!-- ======================================================================= -->
+<div class="grid gap-8 lg:grid-cols-12 mb-8">
+  <!-- Módulo de Cursos Asignados (7 cols) -->
+  <section class="lg:col-span-7 glass rounded-3xl p-6 sm:p-7 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">🎓</div>
+          <div>
+            <h2 class="font-display font-bold text-lg text-white">Capacitación y Cursos</h2>
+            <p class="text-xs text-slate-400">Tu plan de formación continuo en {{ EMPRESA.nombre }}</p>
+          </div>
+        </div>
+        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300">
+          {{ cursos_pendientes|default:"0" }} por completar
+        </span>
+      </div>
+
+      <div class="space-y-3.5">
+        {% for asig in mis_cursos %}
+        <div class="glass-card rounded-2xl p-4 transition hover:border-indigo-500/40">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-[200px]">
+              <div class="flex items-center gap-2 mb-1">
+                {% if asig.estado == 'COMPLETADO' %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium">✔ Completado</span>
+                {% elif asig.estado == 'EN_CURSO' %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium">⏳ En curso</span>
+                {% else %}
+                <span class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-medium">📌 Pendiente</span>
+                {% endif %}
+                <span class="text-[11px] text-slate-400">⏱ {{ asig.curso.duracion_horas }}h</span>
+                {% if asig.curso.obligatorio %}<span class="text-[10px] text-rose-300 font-semibold uppercase">Obligatorio</span>{% endif %}
+              </div>
+              <h3 class="font-semibold text-sm text-white">{{ asig.curso.titulo }}</h3>
+              <p class="text-xs text-slate-400 mt-1 line-clamp-2">{{ asig.curso.descripcion }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="{% url 'curso_detalle' asig.curso.pk %}" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-3.5 py-1.5 text-xs font-semibold text-white transition">
+                Ver Material
+              </a>
+              {% if asig.estado != 'COMPLETADO' %}
+              <form method="post" action="{% url 'curso_estado' asig.curso.pk 'COMPLETADO' %}">{% csrf_token %}
+                <button class="rounded-xl bg-emerald-600/80 hover:bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition" title="Marcar como completado">
+                  ✔ Listo
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-center py-6 text-sm text-slate-500">No tienes cursos asignados en este momento.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Módulo de Noticias de la Empresa (5 cols) -->
+  <section class="lg:col-span-5 glass rounded-3xl p-6 sm:p-7 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">📢</div>
+          <div>
+            <h2 class="font-display font-bold text-lg text-white">Noticias & Avisos</h2>
+            <p class="text-xs text-slate-400">Comunicados oficiales de la compañía</p>
+          </div>
+        </div>
+        {% if es_lider %}
+        <a href="{% url 'noticia_crear' %}" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition">＋ Publicar</a>
+        {% endif %}
+      </div>
+
+      <div class="space-y-3.5">
+        {% for noti in noticias %}
+        <a href="{% url 'noticia_detalle' noti.pk %}" class="block glass-card rounded-2xl p-4 hover:border-emerald-500/40 transition group">
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if noti.categoria == 'COMUNICADO' %}bg-indigo-500/20 text-indigo-300{% elif noti.categoria == 'AVISO' %}bg-amber-500/20 text-amber-300{% else %}bg-emerald-500/20 text-emerald-300{% endif %}">
+              {{ noti.get_categoria_display }}
+            </span>
+            <span class="text-[11px] text-slate-500">{{ noti.creada|date:"d M" }}</span>
+          </div>
+          <h3 class="font-semibold text-sm text-white group-hover:text-emerald-300 transition">{{ noti.titulo }}</h3>
+          <p class="text-xs text-slate-400 mt-1 line-clamp-2">{{ noti.contenido }}</p>
+        </a>
+        {% empty %}
+        <p class="text-center py-6 text-sm text-slate-500">No hay comunicados publicados.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="pt-4 text-center">
+      <a href="{% url 'noticia_list' %}" class="text-xs text-indigo-400 hover:underline">Ver todas las noticias →</a>
+    </div>
+  </section>
+</div>
+
+<!-- ======================================================================= -->
+<!-- MÉTRICAS Y ACCESOS RÁPIDOS PARA LÍDERES / SUPERADMIN                   -->
+<!-- ======================================================================= -->
+{% if es_lider %}
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-display font-bold text-xl text-white">Consolidado y Métricas Organizacionales</h2>
+    <div class="flex gap-2">
+      <a href="{% url 'exportar_excel' %}" class="rounded-xl glass hover:bg-slate-800 px-3.5 py-1.5 text-xs font-semibold text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition">
+        <span>📊</span> Exportar Reporte .XLSX
+      </a>
+    </div>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="glass rounded-2xl p-5 border-l-4 border-indigo-500 shadow-xl">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Talento Vinculado</p>
+      <p class="font-display text-3xl font-extrabold text-white mt-2">{{ total_empleados|default:"0" }}</p>
+      <div class="flex justify-between items-center mt-3 text-xs">
+        <span class="text-indigo-300">{{ total_sedes|default:"0" }} Sedes · {{ total_deptos|default:"0" }} Deptos</span>
+        <a href="{% url 'empleado_list' %}" class="text-indigo-400 hover:underline">Gestionar →</a>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border-l-4 border-emerald-500 shadow-xl">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Nómina del Mes (Neto)</p>
+      <p class="font-display text-2xl font-extrabold text-emerald-400 mt-2">{{ nomina_neto|default:0|moneda }}</p>
+      <div class="flex justify-between items-center mt-3 text-xs text-slate-400">
+        <span>Dev: {{ nomina_devengado|default:0|moneda }}</span>
+        <a href="{% url 'nomina_list' %}" class="text-emerald-400 hover:underline">Ver nómina →</a>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border-l-4 border-amber-500 shadow-xl">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Solicitudes Pendientes</p>
+      <div class="flex items-baseline gap-3 mt-2">
+        <span class="font-display text-3xl font-extrabold text-amber-400">{{ vacaciones_pendientes|default:0 }}</span>
+        <span class="text-xs text-slate-400">Vacaciones</span>
+        <span class="font-display text-2xl font-extrabold text-yellow-400 ml-2">{{ anticipos_pendientes|default:0 }}</span>
+        <span class="text-xs text-slate-400">Anticipos</span>
+      </div>
+      <div class="flex justify-between items-center mt-3 text-xs">
+        <a href="{% url 'vacaciones_panel_aprobacion' %}" class="text-amber-300 hover:underline">Revisar RH</a>
+        <a href="{% url 'anticipo_panel_finanzas' %}" class="text-yellow-300 hover:underline">Revisar Finanzas</a>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border-l-4 border-rose-500 shadow-xl">
+      <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Mesa de Ayuda (IT)</p>
+      <p class="font-display text-3xl font-extrabold text-rose-400 mt-2">{{ tickets_abiertos|default:0 }}</p>
+      <div class="flex justify-between items-center mt-3 text-xs">
+        <span class="text-slate-400">Tickets por resolver</span>
+        <a href="{% url 'ticket_panel_it' %}" class="text-rose-400 hover:underline">Atender IT →</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ======================================================================= -->
+<!-- MIS COLILLAS, MIS TICKETS Y MIS ACTIVOS ASIGNADOS                      -->
+<!-- ======================================================================= -->
+<div class="grid gap-6 lg:grid-cols-3">
+  <!-- Mis Colillas Recientes -->
+  <div class="glass rounded-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display font-bold text-white text-base">💰 Mis Últimas Colillas</h3>
+      <a href="{% url 'certificado' %}" class="text-xs text-indigo-400 hover:underline">Certificado</a>
+    </div>
+    <div class="space-y-3">
+      {% for c in mis_colillas %}
+      <a href="{% url 'nomina_detalle' c.pk %}" class="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 transition text-xs">
+        <div>
+          <p class="font-semibold text-white capitalize">{{ c.periodo|date:"F Y" }}</p>
+          <p class="text-slate-400 text-[11px]">Salud+Pensión: {{ c.total_deducciones|moneda }}</p>
+        </div>
+        <div class="text-right">
+          <p class="font-bold text-emerald-400">{{ c.neto_pagar|moneda }}</p>
+          <span class="text-[10px] text-indigo-400">Ver recibo →</span>
+        </div>
+      </a>
+      {% empty %}
+      <p class="text-xs text-slate-500 py-4 text-center">No hay extractos registrados.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Mis Tickets de Soporte -->
+  <div class="glass rounded-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display font-bold text-white text-base">🎫 Mis Tickets IT</h3>
+      <a href="{% url 'ticket_crear' %}" class="text-xs text-indigo-400 hover:underline">＋ Nuevo</a>
+    </div>
+    <div class="space-y-3">
+      {% for t in mis_tickets %}
+      <a href="{% url 'ticket_detalle' t.pk %}" class="block p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800 transition text-xs">
+        <div class="flex justify-between items-center mb-1">
+          <span class="font-semibold text-white truncate max-w-[180px]">#{{ t.pk }} {{ t.asunto }}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full {% if t.estado == 'RESUELTO' %}bg-emerald-500/20 text-emerald-300{% elif t.estado == 'EN_PROCESO' %}bg-amber-500/20 text-amber-300{% else %}bg-slate-700 text-slate-300{% endif %}">
+            {{ t.get_estado_display }}
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">{{ t.creado|date:"d/m/Y H:i" }} · {{ t.get_prioridad_display }}</p>
+      </a>
+      {% empty %}
+      <p class="text-xs text-slate-500 py-4 text-center">Sin requerimientos de soporte activos.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Mis Activos Tecnológicos -->
+  <div class="glass rounded-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-display font-bold text-white text-base">💻 Mis Equipos Asignados</h3>
+      <span class="text-xs text-emerald-400 font-mono">IT ACTIVO</span>
+    </div>
+    <div class="space-y-3">
+      {% for a in mis_activos %}
+      <div class="p-3 rounded-xl bg-slate-900/60 text-xs">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="font-semibold text-white">{{ a.get_tipo_display }} {{ a.marca_modelo }}</p>
+            <p class="text-[11px] text-slate-400 font-mono mt-0.5">S/N: {{ a.serial }}</p>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[10px] bg-indigo-500/20 text-indigo-300">Entregado</span>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-xs text-slate-500 py-4 text-center">No tienes activos tecnológicos bajo custodia.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

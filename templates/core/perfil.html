@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Mi Perfil Corporativo{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="font-display text-2xl font-bold text-white">Mi Perfil y Autogestión</h1>
+      <p class="text-sm text-slate-400">Actualiza tus datos de contacto personales y visualiza tu ficha laboral.</p>
+    </div>
+    <a href="{% url 'firma_x' %}" class="rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-2.5 text-xs font-semibold text-white transition flex items-center gap-2">
+      <span>✍️</span> Modificar Mi Firma X
+    </a>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-3">
+    <!-- Ficha Contractual Fija -->
+    <div class="glass rounded-3xl p-6 md:col-span-1 border-t-4 border-indigo-500">
+      <div class="text-center mb-5">
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-display font-extrabold text-3xl mb-3">
+          {{ empleado.nombre_completo|first }}
+        </div>
+        <h2 class="font-display font-bold text-lg text-white">{{ empleado.nombre_completo }}</h2>
+        <p class="text-xs text-indigo-400 font-semibold">{{ empleado.cargo }}</p>
+      </div>
+
+      <div class="space-y-3 text-xs border-t border-slate-800 pt-4">
+        <div>
+          <span class="text-slate-500 block">Documento de Identidad</span>
+          <span class="font-mono text-white text-sm">{{ empleado.documento }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Sede Asignada</span>
+          <span class="text-white">{{ empleado.sede.nombre }} ({{ empleado.sede.ciudad }})</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Departamento</span>
+          <span class="text-white">{{ empleado.departamento.nombre }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Tipo de Contrato</span>
+          <span class="text-white">{{ empleado.get_tipo_contrato_display }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Fecha de Ingreso</span>
+          <span class="text-white">{{ empleado.fecha_ingreso|date:"d \d\e F \d\e Y" }}</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block">Salario Base Contractual</span>
+          <span class="font-bold text-emerald-400 text-sm">{{ empleado.salario_base|moneda }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Autogestión de Datos Personales -->
+    <div class="glass rounded-3xl p-6 sm:p-8 md:col-span-2">
+      <h2 class="font-display font-bold text-lg text-white mb-4">Actualizar Información Personal</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for f in form %}
+        <div>
+          <label for="{{ f.id_for_label }}" class="block text-xs font-medium text-slate-400 mb-1">{{ f.label }}</label>
+          {{ f }}
+          {% for error in f.errors %}
+          <p class="text-xs text-rose-400 mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        <div class="pt-4 flex justify-end">
+          <button type="submit" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-6 py-2.5 text-xs font-bold text-slate-900 transition">
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

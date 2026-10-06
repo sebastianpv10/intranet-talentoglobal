@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Generar colilla{% endblock %}
+{% block content %}
+<div class="max-w-3xl">
+  <h1 class="font-display text-2xl font-bold text-white mb-1">Generar colilla de pago</h1>
+  <p class="text-sm text-emerald-300 mb-5">Salud (4%) y pensión (4%) se calculan automáticamente sobre el devengado base.</p>
+  <form method="post" class="glass rounded-2xl p-6 sm:p-8 grid gap-5 sm:grid-cols-2">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="sm:col-span-2 text-rose-300 text-sm">{{ form.non_field_errors }}</div>{% endif %}
+    {% for f in form %}
+    <div>
+      <label for="{{ f.id_for_label }}" class="text-sm text-slate-400">{{ f.label }}</label>
+      <div class="mt-1">{{ f }}</div>
+      {% if f.help_text %}<p class="text-xs text-slate-500 mt-1">{{ f.help_text }}</p>{% endif %}
+      {% for e in f.errors %}<p class="text-xs text-rose-400 mt-1">{{ e }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <div class="sm:col-span-2 rounded-xl bg-slate-900/60 border border-slate-700 p-4 text-sm grid grid-cols-2 sm:grid-cols-4 gap-3" id="preview">
+      <div><p class="text-slate-400 text-xs">Devengado</p><p id="p-dev" class="text-white font-semibold">—</p></div>
+      <div><p class="text-slate-400 text-xs">Salud 4%</p><p id="p-sal" class="text-rose-300 font-semibold">—</p></div>
+      <div><p class="text-slate-400 text-xs">Pensión 4%</p><p id="p-pen" class="text-rose-300 font-semibold">—</p></div>
+      <div><p class="text-slate-400 text-xs">Neto estimado</p><p id="p-net" class="text-emerald-400 font-semibold">—</p></div>
+    </div>
+    <div class="sm:col-span-2 flex gap-3">
+      <button class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-6 py-2.5 font-semibold text-slate-900">Generar colilla</button>
+      <a href="{% url 'nomina_list' %}" class="rounded-xl glass px-6 py-2.5">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ salarios|json_script:"salarios" }}
+<script>
+  const sal = JSON.parse(document.getElementById('salarios').textContent);
+  const $ = id => document.getElementById(id);
+  const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+  function calc() {
+    const emp = $('id_empleado').value;
+    const base = parseFloat($('id_devengado_base').value) || parseFloat(sal[emp]) || 0;
+    const bon = parseFloat($('id_bonificaciones').value) || 0;
+    const otras = parseFloat($('id_otras_deducciones').value) || 0;
+    const s = base * 0.04, p = base * 0.04;
+    $('p-dev').textContent = fmt(base + bon); $('p-sal').textContent = fmt(s);
+    $('p-pen').textContent = fmt(p); $('p-net').textContent = fmt(base + bon - s - p - otras);
+  }
+  ['id_empleado','id_devengado_base','id_bonificaciones','id_otras_deducciones'].forEach(i => $(i).addEventListener('input', calc));
+  calc();
+</script>
+{% endblock %}

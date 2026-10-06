@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Reserva de Espacios{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">Reserva de Espacios y Salas (Operaciones)</h1>
+    <p class="text-xs text-slate-400">Salas de juntas, auditorios y recursos audiovisuales de TalentoGlobal SAS.</p>
+  </div>
+  <div class="flex gap-2">
+    {% if es_ops %}
+    <a href="{% url 'espacio_list' %}" class="rounded-xl glass px-4 py-2.5 text-xs text-cyan-300 hover:text-white transition">
+      🚪 Administrar Espacios
+    </a>
+    {% endif %}
+    <a href="{% url 'reserva_crear' %}" class="rounded-xl bg-cyan-500 hover:bg-cyan-400 px-4 py-2.5 text-xs font-bold text-slate-900 shadow-lg transition flex items-center gap-2">
+      <span>＋</span> Nueva Reserva
+    </a>
+  </div>
+</div>
+
+<!-- Grid de Espacios Disponibles -->
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+  {% for esp in espacios %}
+  <div class="glass rounded-3xl p-5 border-t-2 border-cyan-500 hover:border-cyan-400 transition">
+    <div class="flex items-start justify-between">
+      <div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">{{ esp.get_tipo_display }}</span>
+        <h3 class="font-display font-bold text-base text-white mt-2">{{ esp.nombre }}</h3>
+      </div>
+      <span class="text-xs font-mono text-slate-400">Cap: {{ esp.capacidad }} p.</span>
+    </div>
+    <p class="text-xs text-slate-400 mt-2">📍 Sede: {{ esp.sede.nombre }} ({{ esp.sede.ciudad }})</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Agenda y Próximas Reservas -->
+<div class="glass rounded-3xl p-6 sm:p-8">
+  <h2 class="font-display font-bold text-lg text-white mb-4">Agenda de Reservas Activas</h2>
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] text-left">
+        <tr>
+          <th class="p-4">Fecha</th>
+          <th>Horario</th>
+          <th>Espacio / Recurso</th>
+          <th>Motivo / Reunión</th>
+          <th>Reservado Por</th>
+          <th class="pr-4 text-right">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for r in reservas %}
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4 font-bold text-white">{{ r.fecha|date:"D, d M Y" }}</td>
+          <td class="font-mono text-cyan-300">{{ r.hora_inicio|time:"H:i" }} - {{ r.hora_fin|time:"H:i" }}</td>
+          <td>
+            <span class="font-semibold text-white">{{ r.espacio.nombre }}</span><br>
+            <span class="text-[10px] text-slate-400">{{ r.espacio.sede.ciudad }}</span>
+          </td>
+          <td class="text-slate-200">{{ r.titulo }}</td>
+          <td>{{ r.empleado.nombre_completo }}</td>
+          <td class="pr-4 text-right">
+            {% if r.empleado.user_id == request.user.id or es_ops %}
+            <form method="post" action="{% url 'reserva_cancelar' r.pk %}" onsubmit="return confirm('¿Cancelar esta reserva?')">
+              {% csrf_token %}
+              <button class="text-rose-400 hover:underline text-xs">Cancelar</button>
+            </form>
+            {% else %}
+            <span class="text-slate-600">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="p-8 text-center text-slate-500">No hay reservas programadas para los próximos días.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

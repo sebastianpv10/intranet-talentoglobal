@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Empleados{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="font-display text-2xl font-bold text-white">Colaboradores</h1>
+  <a href="{% url 'empleado_create' %}" class="rounded-xl bg-indigo-500 hover:bg-indigo-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30">＋ Nuevo colaborador</a>
+</div>
+
+<form method="get" class="glass rounded-2xl p-4 grid gap-3 sm:grid-cols-5 mb-5 text-sm">
+  <input name="q" value="{{ f.q }}" placeholder="Buscar nombre, documento, cargo…" class="sm:col-span-2 rounded-xl bg-slate-900/70 border border-slate-700 px-3 py-2">
+  <select name="sede" class="rounded-xl bg-slate-900/70 border border-slate-700 px-3 py-2"><option value="">Todas las sedes</option>
+    {% for s in sedes %}<option value="{{ s.pk }}" {% if f.sede == s.pk|stringformat:"s" %}selected{% endif %}>{{ s.nombre }}</option>{% endfor %}</select>
+  <select name="departamento" class="rounded-xl bg-slate-900/70 border border-slate-700 px-3 py-2"><option value="">Todos los deptos.</option>
+    {% for d in departamentos %}<option value="{{ d.pk }}" {% if f.departamento == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.nombre }}</option>{% endfor %}</select>
+  <div class="flex gap-2">
+    <select name="estado" class="flex-1 rounded-xl bg-slate-900/70 border border-slate-700 px-3 py-2"><option value="">Todos</option>
+      <option value="1" {% if f.estado == "1" %}selected{% endif %}>Activos</option><option value="0" {% if f.estado == "0" %}selected{% endif %}>Inactivos</option></select>
+    <button class="rounded-xl bg-emerald-500 text-slate-900 font-semibold px-4">Filtrar</button>
+  </div>
+</form>
+
+<div class="glass rounded-2xl overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="text-slate-400 text-left bg-slate-800/50"><tr>
+      <th class="p-4">Colaborador</th><th>Cargo</th><th>Depto. / Sede</th><th>Salario</th><th>Firma</th><th>Estado</th><th class="pr-4 text-right">Acciones</th></tr></thead>
+    <tbody class="divide-y divide-slate-700/50">
+      {% for e in empleados %}
+      <tr class="hover:bg-slate-700/20">
+        <td class="p-4"><p class="font-medium text-white">{{ e.nombre_completo }}</p><p class="text-xs text-slate-400">{{ e.documento }} · {{ e.user.email }}</p></td>
+        <td>{{ e.cargo }}{% if e.rol == "ADMIN" %} <span class="text-[10px] rounded bg-indigo-500/30 px-1.5 py-0.5">ADMIN</span>{% endif %}</td>
+        <td>{{ e.departamento.nombre }}<br><span class="text-xs text-slate-400">{{ e.sede.ciudad }}</span></td>
+        <td>{{ e.salario_base|moneda }}</td>
+        <td>{% if e.firma_x %}<span class="text-emerald-400">✔</span>{% else %}<span class="text-slate-500">—</span>{% endif %}</td>
+        <td><span class="rounded-full px-2.5 py-0.5 text-xs {% if e.activo %}bg-emerald-500/20 text-emerald-300{% else %}bg-rose-500/20 text-rose-300{% endif %}">{% if e.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
+        <td class="pr-4 text-right whitespace-nowrap">
+          <a href="{% url 'empleado_update' e.pk %}" class="text-indigo-300 hover:underline">Editar</a> ·
+          <a href="{% url 'certificado_empleado' e.pk %}" class="text-indigo-300 hover:underline">Certificado</a>
+          <form method="post" action="{% url 'empleado_reset' e.pk %}" class="inline" onsubmit="return confirm('¿Restablecer contraseña a admin?')">{% csrf_token %} · <button class="text-amber-300 hover:underline">Reset clave</button></form>
+          <form method="post" action="{% url 'empleado_toggle' e.pk %}" class="inline">{% csrf_token %} · <button class="text-rose-300 hover:underline">{% if e.activo %}Desactivar{% else %}Activar{% endif %}</button></form>
+        </td>
+      </tr>
+      {% empty %}<tr><td colspan="7" class="p-8 text-center text-slate-500">Sin resultados.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if is_paginated %}
+<div class="flex justify-center gap-3 mt-5 text-sm">
+  {% if page_obj.has_previous %}<a class="glass rounded-lg px-3 py-1.5" href="?{{ qs }}&page={{ page_obj.previous_page_number }}">← Anterior</a>{% endif %}
+  <span class="py-1.5 text-slate-400">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="glass rounded-lg px-3 py-1.5" href="?{{ qs }}&page={{ page_obj.next_page_number }}">Siguiente →</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

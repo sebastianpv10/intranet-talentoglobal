@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Mesa de Ayuda (IT){% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+  <div>
+    <h1 class="font-display text-2xl font-bold text-white">
+      {% if es_gestion_it %}Gestión de Tickets IT (Mesa de Ayuda){% else %}Mis Tickets de Soporte Técnico{% endif %}
+    </h1>
+    <p class="text-xs text-slate-400">Atención a requerimientos de hardware, software y cuentas de usuario.</p>
+  </div>
+  <a href="{% url 'ticket_crear' %}" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2.5 text-xs font-bold text-slate-900 shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
+    <span>＋</span> Crear Ticket de Soporte
+  </a>
+</div>
+
+<div class="glass rounded-3xl overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-xs">
+      <thead class="bg-slate-900/80 text-slate-400 uppercase tracking-wider text-[11px] text-left">
+        <tr>
+          <th class="p-4">Ticket</th>
+          {% if es_gestion_it %}<th>Solicitante</th>{% endif %}
+          <th>Categoría</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Asignado a</th>
+          <th>Fecha</th>
+          <th class="pr-4 text-right">Acción</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-800">
+        {% for t in tickets %}
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-4">
+            <span class="font-mono text-indigo-400 font-bold block">#{{ t.pk }}</span>
+            <span class="font-medium text-white">{{ t.asunto }}</span>
+          </td>
+          {% if es_gestion_it %}
+          <td>
+            <p class="font-semibold text-white">{{ t.solicitante.nombre_completo }}</p>
+            <p class="text-[11px] text-slate-400">{{ t.solicitante.sede.ciudad }}</p>
+          </td>
+          {% endif %}
+          <td><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">{{ t.get_categoria_display }}</span></td>
+          <td>
+            {% if t.prioridad == 'CRITICA' %}<span class="text-rose-400 font-bold">🔥 Crítica</span>
+            {% elif t.prioridad == 'ALTA' %}<span class="text-amber-400 font-bold">⚡ Alta</span>
+            {% elif t.prioridad == 'MEDIA' %}<span class="text-blue-300">Media</span>
+            {% else %}<span class="text-slate-400">Baja</span>{% endif %}
+          </td>
+          <td>
+            {% if t.estado == 'RESUELTO' %}<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">✔ Resuelto</span>
+            {% elif t.estado == 'EN_PROCESO' %}<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold">⏳ En Proceso</span>
+            {% elif t.estado == 'CERRADO' %}<span class="px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 font-semibold">Cerrado</span>
+            {% else %}<span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold">Abierto</span>{% endif %}
+          </td>
+          <td>{{ t.asignado_a.nombre_completo|default:"Sin asignar" }}</td>
+          <td class="text-slate-400">{{ t.creado|date:"d/m/Y H:i" }}</td>
+          <td class="pr-4 text-right">
+            <a href="{% url 'ticket_detalle' t.pk %}" class="rounded-lg glass px-3 py-1.5 text-indigo-300 hover:text-white transition">
+              {% if es_gestion_it %}Atender{% else %}Ver Detalle{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="p-8 text-center text-slate-500">No hay tickets registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

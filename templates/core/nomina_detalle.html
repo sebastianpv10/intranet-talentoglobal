@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load formatos %}
+{% block title %}Colilla de pago{% endblock %}
+{% block content %}
+<div class="no-print flex justify-between max-w-2xl mx-auto mb-5 print:hidden">
+  <a href="javascript:history.back()" class="text-sm text-slate-400 hover:underline">← Volver</a>
+  <button onclick="window.print()" class="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900">🖨 Imprimir</button>
+</div>
+<article class="max-w-2xl mx-auto bg-white text-slate-800 rounded-2xl shadow-2xl p-8 sm:p-10">
+  <header class="flex items-center gap-4 border-b pb-5">
+    {% include "core/_logo.html" with size=52 %}
+    <div><h1 class="font-display font-extrabold text-xl">{{ EMPRESA.nombre }}</h1>
+      <p class="text-xs text-indigo-600 italic">{{ EMPRESA.eslogan }}</p></div>
+    <p class="ml-auto text-right text-sm font-semibold">Colilla de pago<br><span class="font-normal text-slate-500">{{ e.periodo|date:"F Y" }}</span></p>
+  </header>
+  <dl class="grid grid-cols-2 gap-3 text-sm py-5">
+    <div><dt class="text-slate-500">Empleado</dt><dd class="font-semibold">{{ e.empleado.nombre_completo }}</dd></div>
+    <div><dt class="text-slate-500">Documento</dt><dd class="font-semibold">{{ e.empleado.documento }}</dd></div>
+    <div><dt class="text-slate-500">Cargo</dt><dd>{{ e.empleado.cargo }}</dd></div>
+    <div><dt class="text-slate-500">Salario base</dt><dd>{{ e.empleado.salario_base|moneda }}</dd></div>
+  </dl>
+  <table class="w-full text-sm">
+    <thead><tr class="bg-slate-100 text-left"><th class="p-2">Concepto</th><th class="p-2 text-right">Devengado</th><th class="p-2 text-right">Deducción</th></tr></thead>
+    <tbody class="divide-y">
+      <tr><td class="p-2">Devengado base</td><td class="p-2 text-right">{{ e.devengado_base|moneda }}</td><td></td></tr>
+      <tr><td class="p-2">Bonificaciones</td><td class="p-2 text-right">{{ e.bonificaciones|moneda }}</td><td></td></tr>
+      <tr><td class="p-2">Salud (4%)</td><td></td><td class="p-2 text-right">{{ e.deduccion_salud|moneda }}</td></tr>
+      <tr><td class="p-2">Pensión (4%)</td><td></td><td class="p-2 text-right">{{ e.deduccion_pension|moneda }}</td></tr>
+      <tr><td class="p-2">Otras deducciones</td><td></td><td class="p-2 text-right">{{ e.otras_deducciones|moneda }}</td></tr>
+      <tr class="font-semibold bg-slate-50"><td class="p-2">Totales</td><td class="p-2 text-right">{{ e.total_devengado|moneda }}</td><td class="p-2 text-right">{{ e.total_deducciones|moneda }}</td></tr>
+    </tbody>
+  </table>
+  <div class="mt-6 rounded-xl bg-emerald-50 border border-emerald-200 p-4 flex justify-between items-center">
+    <span class="font-semibold text-emerald-800">Neto a pagar</span>
+    <span class="font-display text-2xl font-extrabold text-emerald-700">{{ e.neto_pagar|moneda }}</span>
+  </div>
+</article>
+{% endblock %}

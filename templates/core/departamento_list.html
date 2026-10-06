@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Departamentos{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="font-display text-2xl font-bold text-white">Departamentos</h1>
+  <a href="{% url 'departamento_create' %}" class="rounded-xl bg-indigo-500 hover:bg-indigo-400 px-4 py-2.5 text-sm font-semibold text-white">＋ Nuevo departamento</a>
+</div>
+<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+  {% for d in departamentos %}
+  <div class="glass rounded-2xl p-5 shadow-xl hover:-translate-y-1 transition">
+    <h2 class="font-display font-semibold text-white">{{ d.nombre }}</h2>
+    <p class="text-sm text-slate-400 mt-1">{{ d.descripcion|default:"Sin descripción" }}</p>
+    <p class="text-sm mt-3 text-emerald-300">{{ d.n }} colaborador(es)</p>
+    <div class="flex gap-4 mt-4 text-sm"><a class="text-indigo-300 hover:underline" href="{% url 'departamento_update' d.pk %}">Editar</a><a class="text-rose-300 hover:underline" href="{% url 'departamento_delete' d.pk %}">Eliminar</a></div>
+  </div>
+  {% empty %}<p class="text-slate-500">No hay departamentos registrados.</p>{% endfor %}
+</div>
+{% endblock %}

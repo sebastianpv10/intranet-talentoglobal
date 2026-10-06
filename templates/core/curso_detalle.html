@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ curso.titulo }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300">
+        CURSO CORPORATIVO · {{ curso.duracion_horas }} HORAS
+      </span>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold text-white mt-2">{{ curso.titulo }}</h1>
+    </div>
+    <a href="{% url 'dashboard' %}" class="rounded-xl glass px-4 py-2 text-xs text-slate-300 hover:text-white">← Volver al Panel</a>
+  </div>
+
+  <div class="glass rounded-3xl p-6 sm:p-8 space-y-6">
+    <!-- Estado de Progreso -->
+    <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="text-xs text-slate-400 block">Estado de tu formación:</span>
+        <span class="font-display font-bold text-base text-white">
+          {% if asignacion.estado == 'COMPLETADO' %}
+          <span class="text-emerald-400">✔ Curso Completado</span>
+          {% elif asignacion.estado == 'EN_CURSO' %}
+          <span class="text-amber-400">⏳ En Curso</span>
+          {% else %}
+          <span class="text-slate-300">📌 Pendiente por iniciar</span>
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="flex gap-2">
+        {% if asignacion.estado != 'COMPLETADO' %}
+        <form method="post" action="{% url 'curso_estado' curso.pk 'EN_CURSO' %}">
+          {% csrf_token %}
+          <button class="rounded-xl glass hover:bg-slate-800 px-4 py-2 text-xs font-semibold text-white transition">
+            Marcar en Curso
+          </button>
+        </form>
+        <form method="post" action="{% url 'curso_estado' curso.pk 'COMPLETADO' %}">
+          {% csrf_token %}
+          <button class="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-4 py-2 text-xs font-bold text-slate-900 transition shadow-lg shadow-emerald-500/20">
+            ✔ Finalizar y Completar
+          </button>
+        </form>
+        {% else %}
+        <span class="text-xs text-emerald-400 font-mono">Completado el {{ asignacion.completado|date:"d/m/Y H:i" }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h3 class="font-display font-bold text-lg text-white mb-2">Objetivos del Programa</h3>
+      <p class="text-sm text-slate-300 leading-relaxed">{{ curso.descripcion }}</p>
+    </div>
+
+    {% if curso.contenido %}
+    <div>
+      <h3 class="font-display font-bold text-lg text-white mb-2">Material y Guía de Aprendizaje</h3>
+      <div class="text-sm text-slate-200 leading-relaxed bg-slate-900/60 rounded-2xl p-6 border border-slate-800 space-y-3">
+        {{ curso.contenido|linebreaks }}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if curso.material_url %}
+    <div class="pt-2">
+      <a href="{{ curso.material_url }}" target="_blank" class="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:underline">
+        <span>🔗</span> Abrir Enlace a Plataforma Externa de Formación →
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,215 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Intranet{% endblock %} · {{ EMPRESA.nombre }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              500: '#10b981',
+              600: '#059669',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Poppins', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(ellipse at 15% 0%, #312e81 0%, transparent 45%),
+                  radial-gradient(ellipse at 85% 100%, #064e3b 0%, transparent 40%),
+                  #0b0f19;
+      background-attachment: fixed;
+    }
+    .glass {
+      background: rgba(17, 24, 39, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .glow-indigo {
+      box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.25);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.25);
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body class="font-sans text-slate-200 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+{% block body %}
+<div class="flex min-h-screen">
+  <!-- Sidebar de Navegación Lateral -->
+  <aside class="glass hidden lg:flex w-72 shrink-0 flex-col p-6 print:hidden sticky top-0 h-screen overflow-y-auto border-r border-slate-800">
+    <a href="{% url 'dashboard' %}" class="flex items-center gap-3.5 mb-8 group">
+      {% include "core/_logo.html" with size=46 %}
+      <div class="leading-tight">
+        <p class="font-display font-bold text-lg text-white group-hover:text-indigo-400 transition">TalentoGlobal</p>
+        <p class="text-[11px] font-medium tracking-wide text-emerald-400 uppercase">SAS · Intranet</p>
+      </div>
+    </a>
+
+    <nav class="flex-1 space-y-1.5 text-sm">
+      <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">General</p>
+      {% url 'dashboard' as u_dash %}
+      <a href="{{ u_dash }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition {% if request.path == u_dash %}bg-indigo-600/30 text-indigo-300 border border-indigo-500/30{% else %}text-slate-300 hover:bg-slate-800/60 hover:text-white{% endif %}">
+        <span class="text-base">📊</span> Panel Principal
+      </a>
+      <a href="{% url 'noticia_list' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">📢</span> Noticias & Avisos
+      </a>
+
+      <!-- Mi Autogestión -->
+      <p class="px-3 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Mi Autogestión</p>
+      <a href="{% url 'mi_perfil' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">👤</span> Mi Perfil
+      </a>
+      <a href="{% url 'firma_x' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">✍️</span> Mi Firma X
+      </a>
+      <a href="{% url 'vacaciones_mis_solicitudes' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">🏖️</span> Mis Vacaciones
+      </a>
+      <a href="{% url 'certificado' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">📄</span> Certificado Laboral
+      </a>
+      <a href="{% url 'ticket_mis_tickets' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">🎫</span> Soporte IT
+      </a>
+      <a href="{% url 'anticipo_mis_solicitudes' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">💳</span> Préstamos / Anticipos
+      </a>
+      <a href="{% url 'reserva_calendario' %}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition text-slate-300 hover:bg-slate-800/60 hover:text-white">
+        <span class="text-base">📅</span> Reserva de Espacios
+      </a>
+
+      <!-- Paneles de Liderazgo y Administración por Área -->
+      {% if es_admin or es_it or es_fin or es_ops %}
+      <p class="px-3 pt-5 text-[11px] font-semibold uppercase tracking-wider text-amber-400/90">Áreas de Gestión</p>
+      {% endif %}
+
+      {% if es_admin %}
+      <div class="space-y-1">
+        <span class="block px-3 pt-2 text-[10px] uppercase font-bold text-indigo-400">Talento Humano (RH)</span>
+        <a href="{% url 'empleado_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">👥 Colaboradores</a>
+        <a href="{% url 'nomina_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">💰 Liquidación Nómina</a>
+        <a href="{% url 'vacaciones_panel_aprobacion' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🏖️ Aprobación Vacaciones</a>
+        <a href="{% url 'curso_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🎓 Cursos Corporativos</a>
+        <a href="{% url 'sede_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🏢 Sedes Físicas</a>
+        <a href="{% url 'departamento_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🗂️ Departamentos</a>
+      </div>
+      {% endif %}
+
+      {% if es_it %}
+      <div class="space-y-1 pt-1">
+        <span class="block px-3 pt-2 text-[10px] uppercase font-bold text-emerald-400">Tecnología (IT)</span>
+        <a href="{% url 'ticket_panel_it' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🎫 Mesa de Ayuda (Tickets)</a>
+        <a href="{% url 'activo_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">💻 Inventario de Activos</a>
+      </div>
+      {% endif %}
+
+      {% if es_fin %}
+      <div class="space-y-1 pt-1">
+        <span class="block px-3 pt-2 text-[10px] uppercase font-bold text-yellow-400">Finanzas</span>
+        <a href="{% url 'anticipo_panel_finanzas' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">💳 Aprobación Anticipos</a>
+        <a href="{% url 'nomina_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">📊 Reportes Financieros</a>
+      </div>
+      {% endif %}
+
+      {% if es_ops %}
+      <div class="space-y-1 pt-1">
+        <span class="block px-3 pt-2 text-[10px] uppercase font-bold text-cyan-400">Operaciones</span>
+        <a href="{% url 'espacio_list' %}" class="flex items-center gap-3 px-3.5 py-1.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800 hover:text-white">🚪 Gestión de Espacios</a>
+      </div>
+      {% endif %}
+    </nav>
+
+    <!-- Perfil y Logout -->
+    <div class="border-t border-slate-800 pt-4 mt-4 text-sm">
+      <div class="flex items-center gap-3 mb-3 px-2">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center font-bold text-slate-900 text-sm shadow">
+          {{ request.user.first_name|first|default:"U" }}
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="font-medium text-white truncate text-xs">{{ request.user.get_full_name|default:request.user.username }}</p>
+          <p class="text-[10px] text-emerald-400 font-mono truncate">{{ request.user.empleado.cargo|default:"Administrador" }}</p>
+        </div>
+      </div>
+      <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+        <button class="w-full rounded-xl bg-slate-800/80 hover:bg-rose-600/80 py-2 text-xs font-medium text-slate-300 hover:text-white transition">Cerrar Sesión</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Contenido Central -->
+  <main class="flex-1 p-4 sm:p-8 lg:p-10 min-w-0">
+    <!-- Header Móvil -->
+    <header class="lg:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800 print:hidden">
+      <a href="{% url 'dashboard' %}" class="flex items-center gap-2.5">
+        {% include "core/_logo.html" with size=36 %}
+        <div>
+          <span class="font-display font-bold text-white text-base">TalentoGlobal</span>
+          <p class="text-[9px] text-emerald-400 font-mono">CONECTANDO EL TALENTO</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="{% url 'dashboard' %}" class="text-xs rounded-lg glass px-3 py-1.5">Inicio</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+          <button class="text-xs rounded-lg bg-rose-600/60 px-3 py-1.5">Salir</button>
+        </form>
+      </div>
+    </header>
+
+    <!-- Navegación Móvil Scrollable -->
+    <nav class="lg:hidden flex gap-2 overflow-x-auto pb-4 mb-5 text-xs whitespace-nowrap print:hidden">
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'dashboard' %}">📊 Panel</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'mi_perfil' %}">👤 Perfil</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'firma_x' %}">✍️ Firma X</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'vacaciones_mis_solicitudes' %}">🏖️ Vacaciones</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'certificado' %}">📄 Certificado</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'ticket_mis_tickets' %}">🎫 Tickets</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'anticipo_mis_solicitudes' %}">💳 Anticipos</a>
+      <a class="glass rounded-xl px-3 py-1.5" href="{% url 'reserva_calendario' %}">📅 Reservas</a>
+      {% if es_admin %}
+      <a class="glass rounded-xl px-3 py-1.5 text-indigo-300" href="{% url 'empleado_list' %}">👥 Empleados</a>
+      <a class="glass rounded-xl px-3 py-1.5 text-indigo-300" href="{% url 'nomina_list' %}">💰 Nómina</a>
+      {% endif %}
+    </nav>
+
+    <!-- Mensajes Flash -->
+    {% for m in messages %}
+    <div class="mb-5 rounded-2xl px-5 py-3.5 text-sm glass print:hidden flex items-center justify-between {% if m.tags == 'error' %}border-rose-500/50 bg-rose-950/40 text-rose-200{% else %}border-emerald-500/50 bg-emerald-950/40 text-emerald-200{% endif %}">
+      <span>{{ m }}</span>
+    </div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}{% endblock %}
+</body>
+</html>
